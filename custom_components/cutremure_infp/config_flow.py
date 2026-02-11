@@ -23,12 +23,11 @@ STEP_USER_DATA_SCHEMA = vol.Schema(
 )
 
 
+@config_entries.HANDLERS.register(DOMAIN)
 class CutremureConfigFlow(config_entries.ConfigFlow):
     """Handle a config flow for Cutremure INFP."""
 
     VERSION = 1
-    # Domain must be a string literal for Home Assistant to properly register
-    DOMAIN: str = "cutremure_infp"
 
     async def async_step_user(
         self, user_input: Optional[Dict[str, Any]] = None
@@ -37,7 +36,7 @@ class CutremureConfigFlow(config_entries.ConfigFlow):
         errors: Dict[str, str] = {}
 
         if user_input is not None:
-            await self.async_set_unique_id(self.DOMAIN)
+            await self.async_set_unique_id(DOMAIN)
             self._abort_if_unique_id_configured()
 
             return self.async_create_entry(title="Cutremure INFP", data=user_input)
