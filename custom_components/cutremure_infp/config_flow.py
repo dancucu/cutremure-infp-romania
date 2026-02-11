@@ -5,7 +5,6 @@ from typing import Any, Dict, Optional
 import voluptuous as vol
 from homeassistant import config_entries
 from homeassistant.const import CONF_SCAN_INTERVAL
-from homeassistant.core import callback
 from homeassistant.data_entry_flow import FlowResult
 
 from .const import DOMAIN, CONF_MAGNITUDE_THRESHOLD
@@ -49,10 +48,9 @@ class CutremureConfigFlow(config_entries.ConfigFlow):
         )
 
     @staticmethod
-    @callback
     def async_get_options_flow(
         config_entry: config_entries.ConfigEntry,
-    ) -> config_entries.OptionFlow:
+    ) -> "CutremureOptionsFlow":
         """Create the options flow."""
         return CutremureOptionsFlow(config_entry)
 
