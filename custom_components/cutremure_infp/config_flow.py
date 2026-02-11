@@ -28,7 +28,11 @@ class CutremureConfigFlow(config_entries.ConfigFlow):
     """Handle a config flow for Cutremure INFP."""
 
     VERSION = 1
-    DOMAIN = "cutremure_infp"
+
+    @property
+    def domain(self) -> str:
+        """Return the domain of the config flow."""
+        return DOMAIN
 
     async def async_step_user(
         self, user_input: Optional[Dict[str, Any]] = None
@@ -52,7 +56,7 @@ class CutremureConfigFlow(config_entries.ConfigFlow):
     @callback
     def async_get_options_flow(
         config_entry: config_entries.ConfigEntry,
-    ) -> config_entries.OptionFlow:
+    ) -> "CutremureOptionsFlow":
         """Create the options flow."""
         return CutremureOptionsFlow(config_entry)
 
