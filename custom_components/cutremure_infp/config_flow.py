@@ -35,8 +35,8 @@ class CutremureConfigFlow(config_entries.ConfigFlow, domain="cutremure_infp"):
         errors: Dict[str, str] = {}
 
         if user_input is not None:
-            await self.async_set_unique_id(DOMAIN)
-            self._abort_if_unique_id_config"cutremure_infp"
+            await self.async_set_unique_id("cutremure_infp")
+            self._abort_if_unique_id_configured()
 
             return self.async_create_entry(title="Cutremure INFP", data=user_input)
 
