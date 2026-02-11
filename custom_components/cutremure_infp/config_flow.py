@@ -28,7 +28,7 @@ class CutremureConfigFlow(config_entries.ConfigFlow):
     """Handle a config flow for Cutremure INFP."""
 
     VERSION = 1
-    DOMAIN = "cutremure_infp"
+    DOMAIN = DOMAIN
 
     async def async_step_user(
         self, user_input: Optional[Dict[str, Any]] = None
