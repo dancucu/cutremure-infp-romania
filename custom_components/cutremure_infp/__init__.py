@@ -11,9 +11,6 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
-# Import config flow to register it
-from .config_flow import CutremureConfigFlow  # noqa: F401
-
 _LOGGER = logging.getLogger(__name__)
 
 DOMAIN = "cutremure_infp"

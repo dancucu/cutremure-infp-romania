@@ -7,7 +7,7 @@ from homeassistant import config_entries
 from homeassistant.const import CONF_SCAN_INTERVAL
 from homeassistant.data_entry_flow import FlowResult
 
-from .const import DOMAIN, CONF_MAGNITUDE_THRESHOLD
+from .const import CONF_MAGNITUDE_THRESHOLD
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -23,8 +23,7 @@ STEP_USER_DATA_SCHEMA = vol.Schema(
 )
 
 
-@config_entries.HANDLERS.register(DOMAIN)
-class CutremureConfigFlow(config_entries.ConfigFlow):
+class CutremureConfigFlow(config_entries.ConfigFlow, domain="cutremure_infp"):
     """Handle a config flow for Cutremure INFP."""
 
     VERSION = 1
@@ -37,7 +36,7 @@ class CutremureConfigFlow(config_entries.ConfigFlow):
 
         if user_input is not None:
             await self.async_set_unique_id(DOMAIN)
-            self._abort_if_unique_id_configured()
+            self._abort_if_unique_id_config"cutremure_infp"
 
             return self.async_create_entry(title="Cutremure INFP", data=user_input)
 
