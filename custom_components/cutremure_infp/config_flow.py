@@ -24,10 +24,11 @@ STEP_USER_DATA_SCHEMA = vol.Schema(
 )
 
 
-class CutremureConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
+class CutremureConfigFlow(config_entries.ConfigFlow):
     """Handle a config flow for Cutremure INFP."""
 
     VERSION = 1
+    DOMAIN = "cutremure_infp"
 
     async def async_step_user(
         self, user_input: Optional[Dict[str, Any]] = None
