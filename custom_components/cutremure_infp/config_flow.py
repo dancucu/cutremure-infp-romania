@@ -27,7 +27,8 @@ class CutremureConfigFlow(config_entries.ConfigFlow):
     """Handle a config flow for Cutremure INFP."""
 
     VERSION = 1
-    DOMAIN = DOMAIN
+    # Domain must be a string literal for Home Assistant to properly register
+    DOMAIN: str = "cutremure_infp"
 
     async def async_step_user(
         self, user_input: Optional[Dict[str, Any]] = None
