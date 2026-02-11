@@ -1,0 +1,26 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Configurare Cutremure INFP",
+        "description": "Configurează integrarea de monitorizare a cutremurelor din Romania",
+        "data": {
+          "magnitude_threshold": "Prag de magnitudine pentru notificare",
+          "scan_interval": "Interval de actualizare (secunde)"
+        }
+      }
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Opțiuni Cutremure INFP",
+        "description": "Configurează parametrii de monitorizare",
+        "data": {
+          "magnitude_threshold": "Prag de magnitudine pentru notificare (0-10)",
+          "scan_interval": "Interval de actualizare (10-3600 secunde)"
+        }
+      }
+    }
+  }
+}

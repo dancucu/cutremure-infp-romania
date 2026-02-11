@@ -1,0 +1,330 @@
+# Automatizări gata de folosit - Copy & Paste
+
+## 1. Notificare Simplă (Recomandată pentru început)
+
+```yaml
+# Copiează în Settings → Automations → Create New Automation
+# Apoi alege "Edit in YAML" și inlocuieste cu asta:
+
+alias: "ALERTA Cutremur"
+description: "Alerta instantanee la telefon când cutremur"
+trigger:
+  - platform: state
+    entity_id: binary_sensor.earthquake_alert
+    to: "on"
+action:
+  - service: notify.mobile_app_iphone  # SCHIMBA: iphone → device_id al tău
+    data:
+      title: "🚨 CUTREMUR DETECTAT!"
+      message: |
+        📍 Locație: {{ state_attr('sensor.latest_earthquake', 'location') }}
+        📊 Magnitudine: {{ states('sensor.earthquake_magnitude') }}
+        📏 Profunzime: {{ states('sensor.earthquake_depth') }} km
+        🕒 Ora: {{ state_attr('sensor.latest_earthquake', 'time') }}
+      data:
+        push:
+          sound: "default"
+mode: single
+```
+
+---
+
+## 2. Notificare Avansată cu Condiții
+
+```yaml
+alias: "Cutremur - Alerte Selective"
+description: "Notificări diferite după magnitudine"
+trigger:
+  - platform: state
+    entity_id: sensor.earthquake_magnitude
+action:
+  - choose:
+      # Cutremure puternice (3.5-4.0)
+      - conditions:
+          - condition: numeric_state
+            entity_id: sensor.earthquake_magnitude
+            above: 3.5
+            below: 4.0
+        sequence:
+          - service: notify.mobile_app_iphone
+            data:
+              title: "⚠️ Cutremur Puternic"
+              message: >
+                Magnitudine {{ states('sensor.earthquake_magnitude') }} în
+                {{ state_attr('sensor.latest_earthquake', 'location') }}
+      
+      # Cutremure foarte puternice (>4.0)
+      - conditions:
+          - condition: numeric_state
+            entity_id: sensor.earthquake_magnitude
+            above: 4.0
+        sequence:
+          - service: notify.mobile_app_iphone
+            data:
+              title: "🔴 CUTREMUR SEMNIFICATIV!"
+              message: >
+                ⚡ MAGNITUDINE {{ states('sensor.earthquake_magnitude') }}!
+                📍 {{ state_attr('sensor.latest_earthquake', 'location') }}
+              data:
+                push:
+                  sound: "critical"
+          
+          # Email notificare pentru cutremure majore
+          - service: notify.email
+            data:
+              title: "CUTREMUR MAJOR"
+              message: >
+                Cutremur cu magnitudine {{ states('sensor.earthquake_magnitude') }}
+                în {{ state_attr('sensor.latest_earthquake', 'location') }}
+    
+    default: []
+
+mode: single
+```
+
+---
+
+## 3. Notificare Persistentă (Rămâne pe ecran)
+
+```yaml
+alias: "Cutremur - Notificare Persistentă"
+description: "Afișează notificare persistentă care rămâne vizibilă"
+trigger:
+  - platform: state
+    entity_id: binary_sensor.earthquake_alert
+    to: "on"
+action:
+  - service: persistent_notification.create
+    data:
+      title: "🚨 ALERTA CUTREMUR"
+      message: |
+        **Informații Detaliate**
+        • Magnitudine: {{ states('sensor.earthquake_magnitude') }}
+        • Locație: {{ state_attr('sensor.latest_earthquake', 'location') }}
+        • Profunzime: {{ states('sensor.earthquake_depth') }} km
+        • Latitudine: {{ state_attr('sensor.latest_earthquake', 'latitude') }}
+        • Longitudine: {{ state_attr('sensor.latest_earthquake', 'longitude') }}
+        • Ora: {{ state_attr('sensor.latest_earthquake', 'time') }}
+        • Tip: {{ state_attr('sensor.latest_earthquake', 'event_type') }}
+      
+      notification_id: "earthquake_alert"
+
+mode: single
+```
+
+---
+
+## 4. Notificări Multi-Canal
+
+```yaml
+alias: "Cutremur - Multi-Canal"
+description: "Trimite notificări pe mobil + email + persistent"
+trigger:
+  - platform: state
+    entity_id: binary_sensor.earthquake_alert
+    to: "on"
+action:
+  # Notificare mobil cu sunet critic
+  - service: notify.mobile_app_iphone
+    data:
+      title: "🚨 CUTREMUR!"
+      message: "Mag {{ states('sensor.earthquake_magnitude') }}"
+      data:
+        push:
+          sound: critical
+  
+  # Email (dacă ai configurat)
+  - service: notify.email
+    data:
+      title: "Cutremur Detectat"
+      message: |
+        Magnitudine: {{ states('sensor.earthquake_magnitude') }}
+        Locație: {{ state_attr('sensor.latest_earthquake', 'location') }}
+
+  # Notificare persistentă în Home Assistant
+  - service: persistent_notification.create
+    data:
+      title: "CUTREMUR"
+      message: "Mag {{ states('sensor.earthquake_magnitude') }}"
+
+mode: single
+```
+
+---
+
+## 5. Alerta cu Restricție de Oră (Nu deranja noaptea)
+
+```yaml
+alias: "Cutremur - Smart Hours"
+description: "Alerte modificate pe baza orei"
+trigger:
+  - platform: state
+    entity_id: binary_sensor.earthquake_alert
+    to: "on"
+action:
+  - choose:
+      # Zi (8:00 - 22:00) - notificare normală
+      - conditions:
+          - condition: time
+            after: "08:00:00"
+            before: "22:00:00"
+        sequence:
+          - service: notify.mobile_app_iphone
+            data:
+              title: "Alerta Cutremur"
+              message: >
+                Mag {{ states('sensor.earthquake_magnitude') }} în
+                {{ state_attr('sensor.latest_earthquake', 'location') }}
+      
+      # Noapte (22:00 - 08:00) - doar pentru cutremure majore
+      - conditions:
+          - condition: time
+            after: "22:00:00"
+            before: "08:00:00"
+          - condition: numeric_state
+            entity_id: sensor.earthquake_magnitude
+            above: 4.0
+        sequence:
+          - service: notify.mobile_app_iphone
+            data:
+              title: "🚨 CUTREMUR MAJOR!"
+              message: "Mag {{ states('sensor.earthquake_magnitude') }}"
+              data:
+                push:
+                  sound: critical
+
+mode: single
+```
+
+---
+
+## 6. Aprinde Lumini + Alerta (Safety Script)
+
+```yaml
+alias: "Cutremur - Emergency Response"
+description: "Aprinde lumini + alerta + notificare"
+trigger:
+  - platform: state
+    entity_id: binary_sensor.earthquake_alert
+    to: "on"
+condition:
+  - condition: numeric_state
+    entity_id: sensor.earthquake_magnitude
+    above: 3.5
+action:
+  # Aprinde lumini dacă nu sunt aprinse
+  - service: light.turn_on
+    target:
+      entity_id: light.living_room
+  
+  # Notificare urgentă
+  - service: notify.mobile_app_iphone
+    data:
+      title: "🚨 CUTREMUR PUTERNIC!"
+      message: >
+        EMERGENȚĂ: Magnitudine {{ states('sensor.earthquake_magnitude') }}
+        LOCAȚIE: {{ state_attr('sensor.latest_earthquake', 'location') }}
+      data:
+        push:
+          sound: critical
+
+mode: single
+```
+
+---
+
+## 7. Jurnal de Cutremure (Logging)
+
+```yaml
+alias: "Cutremur - Jurnal Istoric"
+description: "Salvează cutremurile în istoric"
+trigger:
+  - platform: state
+    entity_id: sensor.earthquake_magnitude
+action:
+  - service: persistent_notification.create
+    data:
+      title: "Jurnal Cutremure"
+      message: |
+        [{{ now().strftime('%Y-%m-%d %H:%M:%S') }}]
+        Mag: {{ states('sensor.earthquake_magnitude') }}
+        Loc: {{ state_attr('sensor.latest_earthquake', 'location') }}
+        Prof: {{ states('sensor.earthquake_depth') }} km
+      
+      notification_id: "earthquake_log_{{ now().timestamp() }}"
+
+mode: single
+```
+
+---
+
+## 8. Automatizare Complexă - Scenarii Multiple
+
+```yaml
+alias: "Cutremur - Scenariu Complet"
+description: "Handling complex cu mai mulți pași"
+trigger:
+  - platform: state
+    entity_id: binary_sensor.earthquake_alert
+    to: "on"
+action:
+  # 1. Log in Home Assistant
+  - service: persistent_notification.create
+    data:
+      title: "🚨 CUTREMUR {{ states('sensor.earthquake_magnitude') }} MAGNITUDINE"
+      message: |
+        📍 LOCAȚIE: {{ state_attr('sensor.latest_earthquake', 'location') }}
+        📏 PROFUNZIME: {{ states('sensor.earthquake_depth') }} km
+        🕒 ORA: {{ state_attr('sensor.latest_earthquake', 'time') }}
+        📌 COORD: {{ state_attr('sensor.latest_earthquake', 'latitude') }}, {{ state_attr('sensor.latest_earthquake', 'longitude') }}
+      notification_id: "earthquake_current"
+  
+  # 2. Trimite notificare
+  - service: notify.mobile_app_iphone
+    data:
+      title: "Alerta Cutremur"
+      message: "Mag {{ states('sensor.earthquake_magnitude') }}"
+      data:
+        push:
+          sound: default
+  
+  # 3. Aprinde context-aware
+  - choose:
+      - conditions:
+          - condition: numeric_state
+            entity_id: sensor.earthquake_magnitude
+            above: 4.0
+        sequence:
+          - service: light.turn_on
+            target:
+              entity_id:
+                - light.living_room
+                - light.bedroom
+            data:
+              brightness: 255
+
+mode: single
+```
+
+---
+
+## 📝 Cum să le folosești
+
+1. **Copiază codul YAML** de mai sus
+2. **Mergi în:** Home Assistant → Settings → Automations
+3. **Apasă:** "Create Automation"
+4. **Alege:** "Edit in YAML" (sus în dreapta)
+5. **Inlocuieste:** tot cu codul copiat
+6. **Verifică:** că ai inlocuit `iphone` cu device_id al tău
+7. **Salvează:** Apasă "Save"
+
+---
+
+## ⚠️ Important
+
+- **iphone** → Schimbă cu device_id al dispozitivului tău mobile
+  - Afli în: Settings → Devices & Services → find your device → copy ID
+- **email** → Necesită `notify.email` configurat
+- **Testare:** Așteptă un cutremur natural SAU simuleaza în Services
+
+Succes! 🎉
