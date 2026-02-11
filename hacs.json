@@ -1,0 +1,10 @@
+{
+  "name": "Cutremure INFP Romania",
+  "content_in_root": false,
+  "domains": ["cutremure_infp"],
+  "documentation": "https://github.com/dancucu/cutremure-infp-romania",
+  "issues": "https://github.com/dancucu/cutremure-infp-romania/issues",
+  "requirements": [],
+  "render_readme": true,
+  "iot_class": "polling"
+}
