@@ -54,7 +54,7 @@ class CutremureConfigFlow(config_entries.ConfigFlow, domain="cutremure_infp"):
         return CutremureOptionsFlow(config_entry)
 
 
-class CutremureOptionsFlow(config_entries.OptionFlow):
+class CutremureOptionsFlow(config_entries.OptionsFlow):
     """Handle options for Cutremure INFP."""
 
     def __init__(self, config_entry: config_entries.ConfigEntry) -> None:
