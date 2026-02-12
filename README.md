@@ -12,6 +12,10 @@ O integrare completă pentru **Home Assistant** care monitorizează cutremurele 
 
 ## Instalare
 
+## Pre-release
+
+- Ultimul pre-release disponibil: [v1.0.2-beta.1](https://github.com/dancucu/cutremure-infp-romania/releases/tag/v1.0.2-beta.1)
+
 ### 1. Co­piați directorul integrării
 
 ```bash
