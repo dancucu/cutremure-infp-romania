@@ -65,17 +65,17 @@ class CutremureCoordinator(DataUpdateCoordinator):
     async def _async_update_data(self):
         """Fetch data from the API."""
         try:
-            async with async_get_clientsession(self.hass) as session:
-                async with session.get(API_URL, timeout=aiohttp.ClientTimeout(total=10)) as response:
-                    if response.status != 200:
-                        raise UpdateFailed(f"API returned status {response.status}")
-                    
-                    data = await response.json()
-                    
-                    if not isinstance(data, list) or len(data) == 0:
-                        raise UpdateFailed("Invalid API response format")
-                    
-                    return data
+            session = async_get_clientsession(self.hass)
+            async with session.get(API_URL, timeout=aiohttp.ClientTimeout(total=10)) as response:
+                if response.status != 200:
+                    raise UpdateFailed(f"API returned status {response.status}")
+
+                data = await response.json()
+
+                if not isinstance(data, list) or len(data) == 0:
+                    raise UpdateFailed("Invalid API response format")
+
+                return data
 
         except asyncio.TimeoutError as err:
             raise UpdateFailed(f"Timeout fetching data: {err}") from err
